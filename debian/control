@@ -1,0 +1,16 @@
+Source: mathoid
+Section: web
+Priority: extra
+Maintainer: Moritz Schubotz (Physikerwelt) <wiki@physikerwelt.de>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+Homepage: http://www.formulasearchengine.com/Mathoid
+Vcs-Git: https://github.com/physikerwelt/mathoid-deploy.git
+Vcs-Browser: https://github.com/physikerwelt/mathoid-deploy
+
+Package: mathoid
+Architecture: any
+Depends: nodejs (>=0.8.0), phantomjs (>=1.9.0),  logrotate, adduser, ${shlibs:Depends}, ${misc:Depends}
+Enhances: mediawiki
+Description: Web service converting LaTeX to MathML
+ Conversion from LaTeX to MathML node.js web service that uses Phantomjs in the background. See http://www.formulasearchengine.com/mathoid.

@@ -1,0 +1,14 @@
+# main source
+engine.js usr/lib/mathoid/
+index.html usr/lib/mathoid/
+LICENSE.txt usr/lib/mathoid/
+mathoid.config.json usr/lib/mathoid/
+mathoid.js usr/lib/mathoid/
+mathoid-worker.js usr/lib/mathoid/
+README.md usr/lib/mathoid/
+main.js usr/lib/mathoid/
+# node modules
+node_modules/ usr/lib/mathoid/
+package.json usr/lib/mathoid/
+#MathJax
+Math/ usr/lib/mathoid/
