@@ -1,3 +1,9 @@
+mathoid (0.1-0ubuntu1) precise; urgency=low
+
+  * use npm to build the node_packages folder
+
+ -- Moritz Schubotz (Physikerwelt) <wiki@physikerwelt.de>  Wed, 12 Feb 2014 21:57:50 +0000
+
 mathoid (0.1-0) precise; urgency=low
 
   * Initial Release.

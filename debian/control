@@ -2,7 +2,7 @@ Source: mathoid
 Section: web
 Priority: extra
 Maintainer: Moritz Schubotz (Physikerwelt) <wiki@physikerwelt.de>
-Build-Depends: debhelper (>= 8.0.0)
+Build-Depends: debhelper (>= 8.0.0), make, npm (>= 1.3.0)
 Standards-Version: 3.9.2
 Homepage: http://www.formulasearchengine.com/Mathoid
 Vcs-Git: https://github.com/physikerwelt/mathoid-deploy.git
