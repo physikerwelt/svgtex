@@ -11,6 +11,7 @@ DAEMON="/usr/bin/nodejs $SCRIPT_PATH"
 PIDFILE=/var/run/$NAME.pid
 #SCRIPTNAME=/etc/init.d/$NAME
 MATHOID_PORT=10042
+
 # Exit if the package is not installed
 [ -e "$SCRIPT_PATH" ] || exit 0
 
