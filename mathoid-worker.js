@@ -29,8 +29,7 @@ try {
     process.exit(1);
 }
 
-mjAPI.config({MathJax: {SVG: {font: font}, menuSettings: {semantics: true}},
-              displayError: true});
+mjAPI.config({MathJax: {SVG: {font: font}, menuSettings: {semantics: true}}});
 mjAPI.start();
 
 /**
