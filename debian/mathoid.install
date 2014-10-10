@@ -2,7 +2,5 @@
 *.{js,json,txt,html,md} usr/lib/mathoid/
 # node modules
 node_modules/ usr/lib/mathoid/
-#MathJax
-MathJax/ usr/lib/mathoid/
 #MathJaxNode
 MathJaxNode/ usr/lib/mathoid/
