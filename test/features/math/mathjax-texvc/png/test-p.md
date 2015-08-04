@@ -1,5 +1,5 @@
 ## Test overview
- * Test 1 $\thetasym$ ![Test-image](1.png)
+ * Test 1 $\thetasym$ ![Test-image](1.png?raw=true)
  * Test 2 $\koppa$ ![Test-image](2.png)
  * Test 3 $\stigma$ ![Test-image](3.png)
  * Test 1 $\thetasym$ ![Test-image](1.png)
