@@ -46,16 +46,19 @@
     "js-yaml": "^3.3.1",
     "preq": "^0.4.4",
     "service-runner": "^0.2.1",
-    "texvcjs": "git+https://github.com/wikimedia/texvcjs",
-    "MathJax-node": "git+https://github.com/wikimedia/MathJax-node#mathoid-0-2-8"
+    "texvcjs": "git+https://github.com/wikimedia/texvcjs#mathrm",
+    "MathJax-node": "git+https://github.com/wikimedia/MathJax-node#dev"
   },
   "devDependencies": {
+    "commander": "~2.5.0",
     "coveralls": "2.11.2",
+    "dom-compare": "^0.2.1",
     "istanbul": "^0.3.17",
     "mocha": "^2.2.5",
     "mocha-jshint": "^2.2.3",
     "mocha-lcov-reporter": "^0.0.2",
-    "swagger-router": "^0.1.1"
+    "swagger-router": "^0.1.1",
+    "xmldom":"^0.1.19"
   },
   "deploy": {
     "target": "ubuntu",
