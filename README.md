@@ -14,12 +14,16 @@ Install node 4.2.3, iojs-v2.5.0 or a compatible node version and npm version 2.1
 Thereafter, install mathoid by running
 ```bash
 npm install mathoid
-cd node_modules/mathoid
-npm test
-node server.js
+/node_modules/mathoid/server.js
 ```
 To install mathoid as a unix service there is a [script](scripts/gen-init-scripts.rb).
 
+### Running the tests
+To run the tests you need to install mocha.
+After that you can run the tests from the mathoid folder.
+```bash
+npm test
+```
 
 ## API Description
 
