@@ -194,7 +194,7 @@ describe('Simple Mathoid API tests', function () {
                 uri: baseURL,
                 body: {
                     q: "\\mathrm{</annotation-xml><script>alert('test');</script>}",
-                    noSpeak: true
+                    nospeech: true
                 }
             }).then(function (res) {
                 assert.status(res, 200);

@@ -63,3 +63,4 @@ services:
       png: true #new feature
       speech: true #new feature
       texvcinfo: true
+      speechOn: true

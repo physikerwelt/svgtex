@@ -57,7 +57,7 @@ are now (JSON) objects containing the 'body' and 'headers' fields.
   * mml (MathML input, used in latexml rendering mode)
   * ascii (ascii mathml input, experimental)
 
-#### noSpeak
+#### nospeech
 * optional
 * if speech output is enabled this switch suppresses speech output for one particular request
 
@@ -67,6 +67,7 @@ are now (JSON) objects containing the 'body' and 'headers' fields.
 * png: creates png images using java
 * speech: creates speech output using speech rule engine
 * texvcinfo: displays information regarding the texvc input (experimental)
+* speechOn: default setting for speech output. 'true' is equivalent to the old speakText.
 
 ## Performance
 The performance tests can be run by executing the [performance.sh](scripts/performance.sh) script.

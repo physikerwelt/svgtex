@@ -137,7 +137,7 @@ function handleRequest(res, q, type, outFormat, features) {
  */
 router.post('/:outformat?/', function (req, res) {
     var outFormat;
-    var speech = app.conf.speech;
+    var speech = app.conf.speechOn;
     // First some rudimentary input validation
     if (!(req.body.q)) {
         emitError("q (query) post parameter is missing!");
@@ -163,7 +163,7 @@ router.post('/:outformat?/', function (req, res) {
         default :
             emitError("Input format \"" + type + "\" is not recognized!");
     }
-    if (req.body.noSpeak) {
+    if (req.body.nospeech) {
         speech = false;
     }
     function setOutFormat(fmt) {
