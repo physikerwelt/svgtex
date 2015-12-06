@@ -56,7 +56,7 @@ function handleRequest(res, q, type, outFormat, features) {
     var mml = (type !== "MathML") && /^mml|json|complete$/.test(outFormat);
     var png = app.conf.png && /^png|json|complete$/.test(outFormat);
     var img = app.conf.img && /^json|complete$/.test(outFormat);
-    var speech = (outFormat !== "png") && features.speech;
+    var speech = (outFormat !== "png") && features.speech || outFormat === "speech";
 
     if (type === "TeX" || type === "inline-TeX") {
         var feedback = texvcInfo.feedback(q);
