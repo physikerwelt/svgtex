@@ -86,6 +86,14 @@ function handleRequest(res, q, type, outFormat, features) {
             data.success = false;
             // @deprecated replace with emitError
             data.log = "Error:" + JSON.stringify(data.errors);
+            data.errors.map(function(e){
+                if (/Math Processing Error/.test(e)){
+                    res.set(outHeaders[outFormat]);
+                    res.send(data[outFormat]).end();
+                    process.exit();
+                    // emitError("MathJax error"); this does not work
+                }
+            });
         } else {
             data.success = true;
             // @deprecated
