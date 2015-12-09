@@ -14,7 +14,7 @@ Install node 4.2.3, iojs-v2.5.0 or a compatible node version and npm version 2.1
 Thereafter, install mathoid by running
 ```bash
 npm install mathoid
-/node_modules/mathoid/server.js
+nodejs /node_modules/mathoid/server.js
 ```
 To install mathoid as a unix service there is a [script](scripts/gen-init-scripts.rb).
 
