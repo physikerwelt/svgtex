@@ -31,7 +31,7 @@ var outHeaders = {
 };
 
 
-function emitError(txt,detail) {
+function emitError(txt, detail) {
     if (detail === undefined) {
         detail = txt;
     }
@@ -66,6 +66,10 @@ function handleRequest(res, q, type, outFormat, features) {
             q = sanitizedTex;
         } else {
             emitError(feedback.error.name + ': ' + feedback.error.message, feedback);
+        }
+        if (app.conf.texvcinfo && outFormat === "graph") {
+            res.json(texvcInfo.texvcinfo(q, {"format": "json", "compact": true}));
+            return;
         }
         if (app.conf.texvcinfo && outFormat === "texvcinfo") {
             res.json(feedback).end();
@@ -105,7 +109,7 @@ function handleRequest(res, q, type, outFormat, features) {
         if (sanitizedTex !== undefined) {
             data.sanetex = sanitizedTex;
         }
-        if ( speech ){
+        if (speech) {
             data.speech = data.speakText;
         }
         switch (outFormat) {
@@ -167,7 +171,7 @@ router.post('/:outformat?/', function (req, res) {
         speech = false;
     }
     function setOutFormat(fmt) {
-        if (app.conf[fmt]) {
+        if (app.conf[fmt] || (fmt === 'graph' && app.conf.texvcinfo)) {
             outFormat = fmt;
         } else {
             emitFormatError(fmt);
@@ -184,6 +188,12 @@ router.post('/:outformat?/', function (req, res) {
                 break;
             case "texvcinfo":
                 setOutFormat('texvcinfo');
+                if (!/tex$/i.test(type)) {
+                    emitError('texvcinfo accepts only tex or inline-tex as the input type, "' + type + '" given!');
+                }
+                break;
+            case "graph":
+                setOutFormat('graph');
                 if (!/tex$/i.test(type)) {
                     emitError('texvcinfo accepts only tex or inline-tex as the input type, "' + type + '" given!');
                 }
@@ -207,7 +217,7 @@ router.post('/:outformat?/', function (req, res) {
     } else {
         outFormat = "json";
     }
-    handleRequest(res, q, type, outFormat, {speech:speech});
+    handleRequest(res, q, type, outFormat, {speech: speech});
 
 });
 
