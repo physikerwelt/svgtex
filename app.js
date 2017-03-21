@@ -18,7 +18,7 @@ var sUtil = require('./lib/util');
 var apiUtil = require('./lib/api-util');
 var packageInfo = require('./package.json');
 var yaml = require('js-yaml');
-var mjAPI = require("mathoid-mathjax-node/lib/mj-single.js");
+var mjAPI = require("mathoid-mathjax-node");
 
 
 /**
@@ -135,14 +135,7 @@ function initApp(options) {
     // use the application/x-www-form-urlencoded parser
     app.use(bodyParser.urlencoded({extended: true}));
 
-    mjAPI.config({
-        MathJax: {
-            menuSettings: {semantics: true},
-            SVG: {font: "TeX"},
-            TeX: {noErrors: {disabled: true}}//,
-            //TeX: {extensions: ["mediawiki-texvc.js"]}
-        }
-    });
+    mjAPI.config(app.conf.mj_config);
     mjAPI.start();
 
     app.mjAPI = mjAPI;

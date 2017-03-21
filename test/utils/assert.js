@@ -2,6 +2,10 @@
 
 
 var assert = require('assert');
+var xmldom = require("xmldom");
+var parser = new xmldom.DOMParser();
+var compare = require('dom-compare').compare;
+var reporter = require('dom-compare').GroupingReporter;
 
 
 /**
@@ -52,11 +56,24 @@ function deepEqual(result, expected, message) {
             assert.deepEqual(result, expected, message);
         }
     } catch (e) {
-        console.log('Expected:\n' + JSON.stringify(expected, null, 2));
-        console.log('Result:\n' + JSON.stringify(result, null, 2));
+        // Temporary remove the large debug output and rely on the IDE features
+        // console.log('Expected:\n' + JSON.stringify(expected, null, 2));
+        // console.log('Result:\n' + JSON.stringify(result, null, 2));
+        assert.equal(result, expected, message);
         throw e;
     }
 
+}
+
+function xEqual(result,expected,message) {
+    var domReal = parser.parseFromString(result);
+    var domRef = parser.parseFromString(expected);
+    var cmp = compare(domRef, domReal);
+    if(!cmp.getResult() ){
+        console.log(reporter.report(cmp));
+        assert.deepEqual(result,expected,message);
+
+    }
 }
 
 
@@ -98,6 +115,7 @@ module.exports.fails          = fails;
 module.exports.deepEqual      = deepEqual;
 module.exports.isDeepEqual    = isDeepEqual;
 module.exports.notDeepEqual   = notDeepEqual;
+module.exports.xEqual         = xEqual;
 module.exports.contentType    = contentType;
 module.exports.status         = status;
 module.exports.throws         = assert.throws;
