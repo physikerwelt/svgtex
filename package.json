@@ -44,12 +44,14 @@
     "core-js": "^2.4.1",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
-    "mathoid-mathjax-node": "^0.6.6",
-    "preq": "^0.4.10",
+    "librsvg": "^0.7.0",
+    "mathoid-mathjax-node": "git+https://github.com/physikerwelt/mathjax-node.git#mathoid-0-7-0",
+    "preq": "^0.5.2",
     "service-runner": "^2.2.5",
+    "speech-rule-engine": "1.2.0",
     "svgo": "^0.7.1",
-    "texvcinfo": "^0.4.2",
-    "swagger-router": "^0.5.2"
+    "swagger-router": "^0.5.2",
+    "texvcinfo": "^0.4.2"
   },
   "devDependencies": {
     "commander": "^2.9.0",

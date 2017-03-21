@@ -4,7 +4,10 @@
 var BBPromise = require('bluebird');
 var sUtil = require('../lib/util');
 var texvcInfo = require('texvcinfo');
+var sre = require('speech-rule-engine');
 var SVGO = require('svgo');
+var Readable = require('stream').Readable;
+var rsvg = require('librsvg').Rsvg;
 
 var HTTPError = sUtil.HTTPError;
 var svgo = new SVGO({
@@ -24,6 +27,79 @@ var router = sUtil.router();
  */
 var app;
 
+
+// From https://github.com/pkra/mathjax-node-sre/blob/master/lib/main.js
+var srePostProcessor = function(config, result) {
+    if (result.error) throw result.error;
+    if (!result.mml) throw new Error('No MathML found. Please check the mathjax-node configuration');
+    if (!result.svgNode && !result.htmlNode && !result.mmlNode) throw new Error('No suitable output found. Please check the mathjax-node configuration');
+    // add semantic tree
+    if (config.semantic) {
+        result.streeJson = sre.toJson(result.mml);
+        var xml = sre.toSemantic(result.mml).toString();
+        result.streeXml = config.minSTree ? xml : sre.pprintXML(xml);
+    }
+    // return if no speakText is requested
+    if (!config.speakText) {
+        return result;
+    }
+    // enrich output
+    sre.setupEngine(config);
+    result.speakText = sre.toSpeech(result.mml);
+    if (result.svgNode) {
+        result.svgNode.querySelector('title').innerHTML = result.speakText;
+        // update serialization
+        // HACK add lost xlink namespaces TODO file jsdom bug
+        if (result.svg) result.svg = result.svgNode.outerHTML
+            .replace(/(<(?:use|image) [^>]*)(href=)/g, ' $1xlink:$2');
+    }
+    if (result.htmlNode) {
+        result.htmlNode.firstChild.setAttribute("aria-label", result.speakText);
+        // update serialization
+        if (result.html) result.html = result.htmlNode.outerHTML;
+    }
+    if (result.mmlNode) {
+        result.mmlNode.setAttribute("alttext", result.speakText);
+        // update serialization
+        if (result.mml) result.mml = result.mmlNode.outerHTML;
+    }
+    if (config.enrich) {
+        result.mml = sre.toEnriched(result.mml).toString();
+    }
+    return result;
+};
+
+//
+//  Create the PNG file asynchronously, reporting errors.
+//
+function GetPNG(result, resolve) {
+    var s = new Readable();
+    var pngScale = app.conf.dpi / 90; // 90 DPI is the effective setting used by librsvg
+    var ex = 6;
+    var width = result.svgNode.getAttribute("width").replace("ex", "") * ex;
+    var height = result.svgNode.getAttribute("height").replace("ex", "") * ex;
+
+    var svgRenderer = new rsvg();
+    s._read = function () {
+        s.push(result.svg.replace(/="currentColor"/g, '="black"'));
+        s.push(null);
+    };
+    svgRenderer.on('finish', function () {
+        try {
+            var buffer = svgRenderer.render({
+                format: 'png',
+                width: width * pngScale,
+                height: height * pngScale
+            }).data;
+            result.png = buffer || new Buffer();
+        } catch (e) {
+            result.errors = e.message;
+        }
+        resolve(result);
+    });
+    s.pipe(svgRenderer);
+    return resolve;  // This keeps the queue from continuing until the readFile() is complete
+}
 
 /* The response headers for different render types */
 var outHeaders = function (data) {
@@ -79,7 +155,7 @@ var optimizeSvg = function (data, req, cb) {
 
 function handleRequest(res, q, type, outFormat, features, req) {
     var sanitizedTex, feedback;
-    var svg = app.conf.svg && /^svg|json|complete$/.test(outFormat);
+    var svg = app.conf.svg && /^svg|json|complete|png$/.test(outFormat);
     var mml = (type !== "MathML") && /^mml|json|complete$/.test(outFormat);
     var png = app.conf.png && /^png|json|complete$/.test(outFormat);
     var info = app.conf.texvcinfo && /^graph|texvcinfo$/.test(outFormat);
@@ -105,6 +181,7 @@ function handleRequest(res, q, type, outFormat, features, req) {
                 return;
             }
             if (info && outFormat === "texvcinfo") {
+                res.set("Cache-Control", "max-age=2592000");
                 res.json(feedback).end();
                 return;
             }
@@ -115,26 +192,47 @@ function handleRequest(res, q, type, outFormat, features, req) {
         math: q,
         format: type,
         svg: svg,
-        mathoidStyle: img,
-        mml: mml,
-        speakText: speech,
-        png: png
+        svgNode: img + png,
+        mml: mml
     };
-    if (app.conf.dpi) {
-        mathJaxOptions.dpi = app.conf.dpi;
+    if (speech){
+        mathJaxOptions.mmlNode = true;
+        mathJaxOptions.mml = true;
     }
     return new BBPromise(function(resolve, reject) {
         app.mjAPI.typeset(mathJaxOptions, function (data) {
-            resolve(data);
+                resolve(data);
         });
     }).then(function (data) {
+        return new BBPromise(function(resolve, reject) {
+            if (png) {
+                GetPNG(data,resolve);
+            } else {
+                resolve(data);
+            }
+        });
+    })
+        .then(function (data) {
         if (data.errors) {
             emitError(data.errors);
+        }
+        if (speech) {
+            data = srePostProcessor(app.conf.speech_config, data);
         }
         data.success = true;
         // @deprecated
         data.log = "success";
+        if (data.svgNode) {
+            data.mathoidStyle = [
+                data.svgNode.style.cssText,
+                " width:",data.svgNode.getAttribute("width"),"; height:",data.svgNode.getAttribute("height"),';'
+            ].join("");
+        }
 
+
+        // make sure to delete non serializable objects
+        delete data.svgNode;
+        delete data.mmlNode;
         // Return the sanitized TeX to the client
         if (sanitizedTex !== undefined) {
             data.sanetex = sanitizedTex;
@@ -175,19 +273,8 @@ function handleRequest(res, q, type, outFormat, features, req) {
 }
 
 
-/**
- * POST /
- * Performs the rendering request
- */
-router.post('/:outformat?/', function (req, res) {
-    var outFormat;
-    var speech = app.conf.speech_on;
-    // First some rudimentary input validation
-    if (!(req.body.q)) {
-        emitError("q (query) post parameter is missing!");
-    }
-    var q = req.body.q;
-    var type = (req.body.type || 'tex').toLowerCase();
+var getRequestType = function (type) {
+    type = (type|| 'tex').toLowerCase();
     switch (type) {
         case "tex":
             type = "TeX";
@@ -210,6 +297,35 @@ router.post('/:outformat?/', function (req, res) {
         default :
             emitError("Input format \"" + type + "\" is not recognized!");
     }
+    return type;
+};
+
+/**
+ * GET /
+ * Performs the check get request
+ */
+router.get('/check/:type/:q?', function (req, res) {
+    if (!(req.params.q)) {
+        emitError("q (query) parameter is missing!");
+    }
+    var q = req.body.q;
+    var type = getRequestType(req.params.type);
+    return handleRequest(res, q, type, 'texvcinfo', {speech: app.conf.speech_on}, req);
+    });
+
+/**
+ * POST /
+ * Performs the rendering request
+ */
+router.post('/:outformat?/', function (req, res) {
+    var outFormat;
+    var speech = app.conf.speech_on;
+    // First some rudimentary input validation
+    if (!(req.body.q)) {
+        emitError("q (query) post parameter is missing!");
+    }
+    var q = req.body.q;
+    var type = getRequestType(req.body.type);
     if (req.body.nospeech) {
         speech = false;
     }
