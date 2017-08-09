@@ -1,6 +1,6 @@
 'use strict';
 var rewire = require('rewire');
-var mathoid = rewire('../../../routes/mathoid');
+var mathoid = rewire('../../../lib/math');
 //To test with invalid files as well, we need to gain direct access the optimize SVG method.
 var optimize = mathoid.__get__('optimizeSvg');
 var assert = require('../../utils/assert.js');
