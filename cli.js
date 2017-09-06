@@ -36,17 +36,28 @@ mjAPI.start();
 
 fileOrStdin(program.args[0], 'utf8').then(function (data) {
     var inp = JSON.parse(data);
+    if (!inp) {
+        return {"error": "no valid data sent"};
+    }
     var renderings = BBPromise.map(inp, function (req) {
         var response = new mocks();
         return mathoid.handleRequest(response, req.query.q, req.query.type, req.query.outformat, req.query.features, {}, conf, mjAPI)
             .then(function () {
                 return {req: req, res: response._getJSON()};
+            })
+            .catch(function (err) {
+                return {req: req, res: {success: false, log: err.message}};
             });
     });
     BBPromise.reduce(renderings, function (out, el) {
-        out.push(el);
+        if (el.req.query.hash) {
+            var key = el.req.query.hash;
+            out[key] = el.res;
+        } else {
+            out.nohash.push(el);
+        }
         return out;
-    }, []).then(function (out) {
+    }, {nohash: [], success: true}).then(function (out) {
         return fileOrStdout(program.args[1], JSON.stringify(out));
     }).then(function (isFile) {
         // If no output file was given, wait until all data was written to stdout
@@ -56,5 +67,10 @@ fileOrStdin(program.args[0], 'utf8').then(function (data) {
             });
         }
     });
-});
+})
+    .catch(function (err) {
+            throw err;
+        }
+    )
+;
 
