@@ -134,6 +134,17 @@ function initApp(options) {
     app.use(bodyParser.json());
     // use the application/x-www-form-urlencoded parser
     app.use(bodyParser.urlencoded({extended: true}));
+    if (app.conf.png) {
+        var rsvgVersion = false;
+        try {
+            rsvgVersion = require('librsvg/package.json').version;
+        } catch (e) {
+        }
+        if (!rsvgVersion) {
+            app.conf.png = false;
+            app.logger.log('warning', 'png feature disabled. Librsvg not found');
+        }
+    }
 
     mjAPI.config(app.conf.mj_config);
     mjAPI.start();

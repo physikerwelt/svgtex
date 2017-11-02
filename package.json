@@ -46,7 +46,6 @@
     "file-or-stdin": "^1.0.2",
     "file-or-stdout": "^1.0.0",
     "js-yaml": "^3.10.0",
-    "librsvg": "^0.7.0",
     "mathoid-mathjax-node": "git+https://github.com/physikerwelt/mathjax-node.git#mathoid-0-7-0",
     "mock-express-response": "^0.2.1",
     "preq": "^0.5.2",
@@ -55,6 +54,9 @@
     "svgo": "^0.7.2",
     "swagger-router": "^0.5.6",
     "texvcinfo": "^0.5.0-alpha1"
+  },
+  "optionalDependencies": {
+    "librsvg": "^0.7.0"
   },
   "devDependencies": {
     "commander": "^2.9.0",

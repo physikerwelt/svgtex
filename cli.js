@@ -4,10 +4,8 @@ var program = require('commander');
 
 var BBPromise = require('bluebird');
 var json = require('./package.json');
-var preq = require('preq');
 
 var fs = BBPromise.promisifyAll(require('fs'));
-var path = require('path');
 
 var mjAPI = require('mathoid-mathjax-node');
 var yaml = require('js-yaml');
@@ -26,7 +24,16 @@ program.parse(process.argv);
 var config = yaml.safeLoad(fs.readFileSync(program.config));
 var myServiceIdx = config.services.length - 1;
 var conf = config.services[myServiceIdx].conf;
-
+if (conf.png) {
+    var rsvgVersion = false;
+    try {
+        rsvgVersion = require('librsvg/package.json').version;
+    } catch (e) {
+    }
+    if (!rsvgVersion) {
+        conf.png = false;
+    }
+}
 
 mjAPI.config(conf.mj_config);
 
