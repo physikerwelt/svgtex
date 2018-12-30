@@ -1,4 +1,4 @@
-FROM wikimedia/nodejs
+FROM node:8
 RUN apt-get update && apt-get install -y librsvg2-dev && rm -rf /var/lib/apt/lists/*
 RUN mkdir /opt/service
 ADD . /opt/service
